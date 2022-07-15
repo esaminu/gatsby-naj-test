@@ -1,4 +1,24 @@
 import * as React from "react"
+import { connect, WalletConnection } from "near-api-js"
+import { BrowserLocalStorageKeyStore } from "near-api-js/lib/key_stores/browser_local_storage_key_store";
+import { InMemoryKeyStore } from "near-api-js/lib/key_stores/in_memory_key_store";
+
+(async () => {
+  const config = {
+    keyStore: typeof window === "undefined" ? new InMemoryKeyStore() : new BrowserLocalStorageKeyStore(window.localStorage),
+    networkId: "testnet",
+    nodeUrl: "https://rpc.testnet.near.org",
+    walletUrl: "https://wallet.testnet.near.org"
+  };
+
+
+  if(typeof window !== "undefined") {
+    window.near = await connect(config);
+  
+    window.NEARwallet = new WalletConnection(window.near, "test-gatsby"); 
+  }
+  
+})();
 
 // styles
 const pageStyles = {
@@ -154,6 +174,9 @@ const IndexPage = () => {
             {docLink.text}
           </a>
         </li>
+        <button id="signInBtn" data-test-id="testDapp-signInBtn" onClick={() => window.NEARwallet.requestSignIn('esaminu.testnet')}>
+            Sign in
+        </button>
         {links.map(link => (
           <li key={link.url} style={{ ...listItemStyles, color: link.color }}>
             <span>
